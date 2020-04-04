@@ -8,6 +8,6 @@ up:
 .PHONY: ssh
 ssh:
 	kyrat \
-    -o StrictHostKeyChecking=no \
+		-o StrictHostKeyChecking=no \
 		-i .vagrant/machines/${MUTSUKI_HOST_NAME}/virtualbox/private_key \
 		vagrant@${MUTSUKI_IP}
