@@ -1,0 +1,9 @@
+= Vagrant
+
+----
+$ make up
+$ make ssh
+VM上で
+$ git XXXX
+$ cd XXXX
+----
