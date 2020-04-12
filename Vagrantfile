@@ -25,6 +25,16 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  config.vm.define :kisaragi do |machine|
+    host_name = ENV['KISARAGI_HOST_NAME'] || 'kisaragi'
+    ip        = ENV['KISARAGI_IP'] || '192.168.33.12'
+    machine.vm.hostname = host_name
+    machine.vm.network 'private_network', ip: ip
+    machine.vm.provider :virtualbox do |vb|
+      vb.name = host_name
+    end
+  end
+
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook       = "/home/vagrant/ansible/main.yml"
     ansible.inventory_path = "/home/vagrant/ansible/inventories/hosts"
