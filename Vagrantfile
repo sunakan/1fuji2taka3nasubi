@@ -35,6 +35,19 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  config.vm.define :yayoi do |machine|
+    host_name = ENV['YAYOI_HOST_NAME'] || 'yayoi'
+    ip        = ENV['YAYOI_IP'] || '192.168.33.13'
+    machine.vm.hostname = host_name
+    machine.vm.network 'private_network', ip: ip
+    machine.vm.provider :virtualbox do |vb|
+      vb.name = host_name
+    end
+
+    machine.vm.synced_folder "./tmp/works/", "/home/vagrant/works/",
+      create: true, type: :smb
+  end
+
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook       = "/home/vagrant/ansible/main.yml"
     ansible.inventory_path = "/home/vagrant/ansible/inventories/hosts"
