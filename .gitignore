@@ -1,4 +1,5 @@
 tmp
+build
 
 # Created by https://www.gitignore.io/api/vim,linux,emacs,ansible,windows,vagrant,intellij+all
 # Edit at https://www.gitignore.io/?templates=vim,linux,emacs,ansible,windows,vagrant,intellij+all
@@ -218,3 +219,16 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/vim,linux,emacs,ansible,windows,vagrant,intellij+all
+
+
+# Created by https://www.gitignore.io/api/packer
+# Edit at https://www.gitignore.io/?templates=packer
+
+### Packer ###
+# Cache objects
+packer_cache/
+
+# For built boxes
+*.box
+
+# End of https://www.gitignore.io/api/packer
