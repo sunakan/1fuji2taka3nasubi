@@ -1,12 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-Vagrant.configure("2") do |config|
-  config.vm.box = "bento/ubuntu-18.04"
-  config.vm.synced_folder "./ansible", "/home/vagrant/ansible",
+Vagrant.configure('2') do |config|
+  #config.vm.box = 'bento/ubuntu-18.04'
+  config.vm.box = './packer/builds/debian-10.3.virtualbox.box'
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.synced_folder './ansible', '/home/vagrant/ansible',
     create: true, type: :rsync, owner: :vagrant, group: :vagrant,
     rsync__exclude: [
-      "*.swp",
+      '*.swp',
     ]
 
   config.vm.provider :virtualbox do |vb|
@@ -44,15 +46,15 @@ Vagrant.configure("2") do |config|
       vb.name = host_name
     end
 
-    machine.vm.synced_folder "./tmp/works/", "/home/vagrant/works/",
+    machine.vm.synced_folder './tmp/works/', '/home/vagrant/works/',
       create: true, type: :smb
   end
 
-  config.vm.provision "ansible_local" do |ansible|
-    ansible.playbook       = "/home/vagrant/ansible/main.yml"
-    ansible.inventory_path = "/home/vagrant/ansible/inventories/hosts"
-    ansible.version        = "latest"
-    ansible.limit          = "my-hosts"
+  config.vm.provision 'ansible_local' do |ansible|
+    ansible.playbook       = '/home/vagrant/ansible/main.yml'
+    ansible.inventory_path = '/home/vagrant/ansible/inventories/hosts'
+    ansible.version        = 'latest'
+    ansible.limit          = 'my-hosts'
     ansible.verbose        = false # デバッグしない
     ansible.install        = true  # Ansibleを自動インストールする
   end
