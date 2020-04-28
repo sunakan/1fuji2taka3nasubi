@@ -7,5 +7,6 @@
 
   roles:
     - common
+    - network
     - docker
     - heroku
