@@ -55,6 +55,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision :hosts, :sync_hosts => true
   config.vm.provision 'ansible_local' do |ansible|
+    ansible.provisioning_path = '/home/vagrant/'
     ansible.playbook       = '/home/vagrant/ansible/main.yml'
     ansible.inventory_path = '/home/vagrant/ansible/inventories/hosts'
     ansible.version        = 'latest'
