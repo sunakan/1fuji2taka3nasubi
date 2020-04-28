@@ -8,6 +8,8 @@ export YAYOI_HOST_NAME=yayoi
 .PHONY: up
 up:
 	vagrant up
+plugin:
+	vagrant plugin install vagrant-hosts
 
 .PHONY: ssh
 ssh:
