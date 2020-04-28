@@ -49,8 +49,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.name = host_name
     end
 
-    machine.vm.synced_folder './tmp/works/', '/home/vagrant/works/',
-      create: true, type: :smb
+    #machine.vm.synced_folder './tmp/works/', '/home/vagrant/works/',
+    #  create: true, type: :smb
   end
 
   config.vm.provision 'ansible_local' do |ansible|
