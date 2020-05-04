@@ -1,5 +1,16 @@
 ---
 
+- name: Docker Groupの作成
+  become: yes
+  group:
+    name: docker
+    system: yes
+
+- name: dockerグループにvagrant userを追加（本番ではこんなことしないように）
+  user:
+    name: vagrant
+    groups: docker
+
 - name: Dockerをsnapでインストール
   become: yes
   snap:
