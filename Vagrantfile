@@ -3,64 +3,70 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
+VAGRANT_BOX_DEBIAN  = './packer/builds/debian-10.3.virtualbox.box'
+VAGRANT_BOX_UBUNTU  = 'bento/ubuntu-18.04'
+VAGRANT_BOX_CENTOS  = 'bento/centos-8'
+VAGRANT_BOX_DEFAULT = VAGRANT_BOX_UBUNTU
+
+vm_specs = [
+  { vagrant_box: VAGRANT_BOX_DEBIAN, name: 'mutsuki',  ip: '192.168.33.11', cpus: 2, memory: 1024*2, sync_dir: nil },
+  { vagrant_box: VAGRANT_BOX_UBUNTU, name: 'kisaragi', ip: '192.168.33.12', cpus: 1, memory: 1024*1, sync_dir: nil },
+#  { vagrant_box: VAGRANT_BOX_CENTOS, name: 'yayoi',   ip: '192.168.33.13', cpus: 1, memory: 1024*1, sync_dir: nil },
+]
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  #config.vm.box = 'bento/ubuntu-18.04'
-  config.vm.box = './packer/builds/debian-10.3.virtualbox.box'
+  ##############################################################################
+  # 共通
+  ##############################################################################
   config.vm.synced_folder '.', '/vagrant', disabled: true
-  config.vm.synced_folder './ansible', '/home/vagrant/ansible',
-    create: true, type: :rsync, owner: :vagrant, group: :vagrant,
-    rsync__exclude: [
-      '*.swp',
-    ]
 
-  config.vm.provider :virtualbox do |vb|
-    vb.gui    = false
-    vb.memory = 1024 * 2
-    vb.cpus   = 2
-  end
-
-  config.vm.define :mutsuki do |machine|
-    host_name = ENV['MUTSUKI_HOST_NAME'] || 'mutsuki'
-    ip        = ENV['MUTSUKI_IP'] || '192.168.33.11'
-    machine.vm.hostname = host_name
-    machine.vm.network 'private_network', ip: ip
-    machine.vm.provider :virtualbox do |vb|
-      vb.name = host_name
-      #vb.memory = 1024 * 10
+  ##############################################################################
+  # 各VM
+  ##############################################################################
+  vm_specs.each do |spec|
+    config.vm.define spec[:name] do |machine|
+      machine.vm.box      = spec[:vagrant_box]
+      machine.vm.hostname = spec[:name]
+      machine.vm.network 'private_network', ip: spec[:ip]
+      machine.vm.provider :virtualbox do |vb|
+        vb.name   = spec[:name]
+        vb.cpus   = spec[:cpus]
+        vb.memory = spec[:memory]
+      end
+      if dir=spec[:sync_dir]
+        machine.vm.synced_folder './' + dir, '/home/vagrant/' + dir,
+          create: true, type: :rsync, owner: :vagrant, group: :vagrant,
+          rsync__exclude: ['*.swp']
+      end
     end
   end
 
-  config.vm.define :kisaragi do |machine|
-    host_name = ENV['KISARAGI_HOST_NAME'] || 'kisaragi'
-    ip        = ENV['KISARAGI_IP'] || '192.168.33.12'
-    machine.vm.hostname = host_name
-    machine.vm.network 'private_network', ip: ip
+  ##############################################################################
+  # Ansibleをするためだけの初期化用VM
+  ##############################################################################
+  config.vm.define :wafu_ansible do |machine|
+    machine.vm.box      = VAGRANT_BOX_DEBIAN
+    machine.vm.hostname = 'wafu-ansible'
+    machine.vm.network 'private_network', ip: '192.168.33.10'
     machine.vm.provider :virtualbox do |vb|
-      vb.name = host_name
+      vb.gui    = false
+      vb.name   = machine.vm.hostname
+      vb.memory = 1024 * 1
+      vb.cpus   = 1
     end
+    machine.vm.synced_folder './ansible', '/home/vagrant/ansible',
+      create: true, type: :rsync, owner: :vagrant, group: :vagrant,
+      rsync__exclude: ['*.swp']
+    # vagrant-hosts pluginで各VM同士がhost名でアクセス可能
+    machine.vm.provision 'shell', privileged: false, inline: <<-SHELL
+      sudo apt update
+      sudo apt install --assume-yes python3-pip make sshpass
+      pip3 install --user ansible
+    SHELL
   end
 
-  config.vm.define :yayoi do |machine|
-    host_name = ENV['YAYOI_HOST_NAME'] || 'yayoi'
-    ip        = ENV['YAYOI_IP'] || '192.168.33.13'
-    machine.vm.hostname = host_name
-    machine.vm.network 'private_network', ip: ip
-    machine.vm.provider :virtualbox do |vb|
-      vb.name = host_name
-    end
-
-    #machine.vm.synced_folder './tmp/works/', '/home/vagrant/works/',
-    #  create: true, type: :smb
-  end
-
+  ##############################################################################
+  # 共通：vagrant-hosts pluginで各VM同士がhost名でアクセス可能
+  ##############################################################################
   config.vm.provision :hosts, :sync_hosts => true
-  config.vm.provision 'ansible_local' do |ansible|
-    ansible.provisioning_path = '/home/vagrant/'
-    ansible.playbook       = '/home/vagrant/ansible/main.yml'
-    ansible.inventory_path = '/home/vagrant/ansible/inventories/hosts'
-    ansible.version        = 'latest'
-    ansible.limit          = 'my-hosts'
-    ansible.verbose        = false # デバッグしない
-    ansible.install        = true  # Ansibleを自動インストールする
-  end
 end

@@ -1,21 +1,8 @@
 ---
 
-- name: heroku keyを追加
+- name: herokuコマンドをsnapでインストール
   become: yes
-  apt_key:
-    id: 9DC78D574B269342B906A2935DC22404A6F9F1CA
-    url: "https://cli-assets.heroku.com/apt/release.key"
-    state: present
-
-- name: heroku repoを追加
-  become: yes
-  apt_repository:
-    repo: "deb http://cli-assets.heroku.com/branches/stable/apt ./"
-    state: present
-    update_cache: true
-
-- name: heroku コマンドのインストール
-  become: yes
-  apt:
-    name: heroku
-    update_cache: yes
+  snap:
+    classic: yes
+    name:
+      - heroku

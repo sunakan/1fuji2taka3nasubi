@@ -1,9 +1,16 @@
-= Vagrant
+= My Vagrant
+
+image:http://www.plantuml.com/plantuml/png/VSvHQuCm40VmztoAetkkL6Nh1aLA1J_1O8_Zgb63CHbt2QMKVVUP9MCTT7qp_x-_kzkpGt9-re8dPJwGS0OUiRCdPGReKRCKLnN9rg4Pj8IB023hJLTRCfAWU5o2ewLEKcsr9NXeYcszsOOKssc8_wQcETHbipIzDIvcRwDoSaaEtnDUHzLEHZ93AJw5-Dswob-AB7zwpieoopShsErEsFjtDAoEMbOL8CDr0fSxFWz-zexzf29DZw3-GqL0as8a799Ahxki3EoCPvjC-8n0_BbttTbrzNF7hIejkzN5eM8lJUTd_GK0[]
+
+* Ansible専用のVM：wafu_ansible
+
+== 実行
 
 ----
+$ make plugin
 $ make up
-$ make ssh
-VM上で
-$ git XXXX
-$ cd XXXX
+$ make provision
+$ make mutsuki
+<<mutuski>> VM内で
+$ docker --version
 ----

@@ -1,12 +1,11 @@
 ---
 
 - hosts: all
-  connection: local
   become: yes
-  gather_facts: True
 
   roles:
+    - snappy
     - common
-    - network
     - docker
     - heroku
+    - network

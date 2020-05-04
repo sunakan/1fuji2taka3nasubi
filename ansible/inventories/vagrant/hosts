@@ -1,0 +1,6 @@
+[wafu]
+mutsuki
+kisaragi
+
+[vagrant:children]
+wafu
