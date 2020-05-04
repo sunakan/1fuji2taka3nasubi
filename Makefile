@@ -18,6 +18,7 @@ chmod:
 # $2：VM側のIP(VirtualBox側の名前)
 define ssh-option
 	-o StrictHostKeyChecking=no \
+	-o UserKnownHostsFile=/dev/null \
 	-i .vagrant/machines/$1/virtualbox/private_key \
 	vagrant@$2
 endef
