@@ -9,9 +9,18 @@ VAGRANT_BOX_CENTOS  = 'bento/centos-8'
 VAGRANT_BOX_DEFAULT = VAGRANT_BOX_UBUNTU
 
 vm_specs = [
-  { vagrant_box: VAGRANT_BOX_DEBIAN, name: 'mutsuki',  ip: '192.168.33.11', cpus: 2, memory: 1024*2, sync_dir: nil },
-  { vagrant_box: VAGRANT_BOX_UBUNTU, name: 'kisaragi', ip: '192.168.33.12', cpus: 1, memory: 1024*1, sync_dir: nil },
-#  { vagrant_box: VAGRANT_BOX_CENTOS, name: 'yayoi',   ip: '192.168.33.13', cpus: 1, memory: 1024*1, sync_dir: nil },
+  { name: 'mutsuki',    ip: '192.168.33.11', cpus: 2, memory: 512*1, sync_dir: nil },
+  { name: 'kisaragi',   ip: '192.168.33.12', cpus: 1, memory: 512*1, sync_dir: nil },
+  { name: 'yayoi',      ip: '192.168.33.13', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'uduki',      ip: '192.168.33.14', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'satsuki',    ip: '192.168.33.15', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'minaduki',   ip: '192.168.33.16', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'humiduki',   ip: '192.168.33.17', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'haduki',     ip: '192.168.33.18', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'nagatuki',   ip: '192.168.33.19', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'kannnaduki', ip: '192.168.33.20', cpus: 1, memory: 512*1, sync_dir: nil },
+#  { name: 'shimoduki',  ip: '192.168.33.21', cpus: 1, memory: 512*1, sync_dir: nil },
+  { name: 'shiwasu',    ip: '192.168.33.22', cpus: 1, memory: 512*4, sync_dir: nil },
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -25,7 +34,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ##############################################################################
   vm_specs.each do |spec|
     config.vm.define spec[:name] do |machine|
-      machine.vm.box      = spec[:vagrant_box]
+      machine.vm.box      = spec[:vagrant_box] || VAGRANT_BOX_DEFAULT
       machine.vm.hostname = spec[:name]
       machine.vm.network 'private_network', ip: spec[:ip]
       machine.vm.provider :virtualbox do |vb|
@@ -33,7 +42,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.cpus   = spec[:cpus]
         vb.memory = spec[:memory]
       end
-      if dir=spec[:sync_dir]
+      if dir = spec[:sync_dir]
         machine.vm.synced_folder './' + dir, '/home/vagrant/' + dir,
           create: true, type: :rsync, owner: :vagrant, group: :vagrant,
           rsync__exclude: ['*.swp']

@@ -22,9 +22,8 @@ define ssh-option
 	-i .vagrant/machines/$1/virtualbox/private_key \
 	vagrant@$2
 endef
-ssh: chmod
-	( which kyrat && kyrat $(call ssh-option,wafu_ansible,${WAFU_ANSIBLE_IP}) ) \
-		|| ssh $(call ssh-option,wafu_ansible,${WAFU_ANSIBLE_IP})
+ansible: chmod
+	ssh $(call ssh-option,wafu_ansible,${WAFU_ANSIBLE_IP})
 
 mutsuki: chmod
 	( which kyrat && kyrat $(call ssh-option,mutsuki,${MUTSUKI_IP}) ) \
