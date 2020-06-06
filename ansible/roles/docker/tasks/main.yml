@@ -1,7 +1,10 @@
 ---
 
-- include_tasks: redhat.yml
-  when: ansible_os_family == 'RedHat'
+- include_tasks: amazonlinux1-2.yml
+  when: ansible_distribution == 'Amazon'
+
+- include_tasks: centos.yml
+  when: ansible_distribution == 'CentOS'
 
 - include_tasks: debian.yml
   when: ansible_os_family == 'Debian'

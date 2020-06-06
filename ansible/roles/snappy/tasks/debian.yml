@@ -1,7 +1,0 @@
----
-
-- name: snappyをinstall(Debian系)
-  become: yes
-  apt:
-    name:
-      - snapd

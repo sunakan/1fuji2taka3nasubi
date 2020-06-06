@@ -1,5 +1,6 @@
 tmp
 build
+private-ssh-keys
 
 # Created by https://www.gitignore.io/api/vim,linux,emacs,ansible,windows,vagrant,intellij+all
 # Edit at https://www.gitignore.io/?templates=vim,linux,emacs,ansible,windows,vagrant,intellij+all

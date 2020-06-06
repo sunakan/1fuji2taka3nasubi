@@ -1,37 +1,87 @@
-export WAFU_ANSIBLE_IP=192.168.33.10
-export MUTSUKI_IP=192.168.33.11
-export KISARAGI_IP=192.168.33.12
+ANSIBLE_IP := 192.168.255.250
+FUJI_01_IP := 192.168.33.11
+FUJI_02_IP := 192.168.33.12
+FUJI_03_IP := 192.168.33.13
+FUJI_04_IP := 192.168.33.14
 
-.PHONY: up, plugin, chmod, ssh
-
+################################################################################
+# Vagrantで建てたVM同士が名前解決できるようにするプラグイン
+################################################################################
+.PHONY: install-plugin
+install-plugin:
+	vagrant plugin install vagrant-hosts
+.PHONY: up
 up: plugin
 	vagrant up
 
-plugin:
-	vagrant plugin install vagrant-hosts
+################################################################################
+# Windowsだとsshのprivate_keyの権限がWSLで600にできないので、/tmp/に持っていく
+# Macなら不要
+################################################################################
+TMP_DIR_PREFIX := vagrant-ssh-keys
+.PHONY: clean-vagrant-keys
+clean-vagrant-keys:
+	rm -rf /tmp/$(TMP_DIR_PREFIX)*
+.PHONY: vagrant-keys
+vagrant-keys: clean-vagrant-keys
+	$(eval TMP_DIR := $(shell mktemp --directory -t $(TMP_DIR_PREFIX)-XXXXX))
+	ls .vagrant/machines/*/virtualbox/private_key | xargs -I {key} cp --parents {key} $(TMP_DIR)/
+.PHONY: chmod-vagrant-keys
+chmod-vagrant-keys: vagrant-keys
+	chmod 600 $(TMP_DIR)/.vagrant/machines/*/virtualbox/private_key
 
-chmod:
-	chmod 600 .vagrant/machines/*/virtualbox/private_key
-
+################################################################################
 # SSHのオプションとSSH先
-# $1：VMマシン名(VirtualBox側の名前)
-# $2：VM側のIP(VirtualBox側の名前)
+################################################################################
+# $(1)：VMマシン名(VirtualBox側の名前)
 define ssh-option
-	-o StrictHostKeyChecking=no \
-	-o UserKnownHostsFile=/dev/null \
-	-i .vagrant/machines/$1/virtualbox/private_key \
-	vagrant@$2
+  -o StrictHostKeyChecking=no \
+  -o UserKnownHostsFile=/dev/null \
+  -i $(TMP_DIR)/.vagrant/machines/$(1)/virtualbox/private_key
 endef
-ansible: chmod
-	ssh $(call ssh-option,wafu_ansible,${WAFU_ANSIBLE_IP})
 
-mutsuki: chmod
-	( which kyrat && kyrat $(call ssh-option,mutsuki,${MUTSUKI_IP}) ) \
-		|| ssh $(call ssh-option,mutsuki,${MUTSUKI_IP})
+################################################################################
+# SSHコマンド
+################################################################################
+# $(1)：VMマシン名(VirtualBox側の名前)
+# $(2)：VM側のIP(VirtualBox側の名前)
+define ssh
+	( kyrat $(call ssh-option,$(1)) vagrant@$(2) ) \
+		|| ( sshrc $(call ssh-option,$(1)) vagrant@$(2) ) \
+		|| ssh $(call ssh-option,$(1)) vagrant@$(2)
+endef
 
-kisaragi: chmod
-	( which kyrat && kyrat $(call ssh-option,kisaragi,${KISARAGI_IP}) ) \
-		|| ssh $(call ssh-option,kisaragi,${KISARAGI_IP})
+################################################################################
+# Ansible
+################################################################################
+.PHONY: rsync-ssh-keys
+rsync-ssh-keys: chmod-vagrant-keys
+	rsync --archive --recursive --update --compress --rsh 'ssh $(call ssh-option,ansible,$(ANSIBLE_IP))' \
+		$(TMP_DIR)/ vagrant@$(ANSIBLE_IP):/tmp/private-ssh-keys/
+.PHONY: ssh-ansible
+ssh-ansible: chmod-vagrant-keys rsync-ssh-keys
+	$(call ssh,ansible,$(ANSIBLE_IP))
+.PHONY: provision-hello
+provision-hello: chmod-vagrant-keys rsync-ssh-keys
+	ssh $(call ssh-option,ansible,$(ANSIBLE_IP)) vagrant@$(ANSIBLE_IP) \
+		'cd ansible && make provision-hello'
+.PHONY: provision-development
+provision-development: chmod-vagrant-keys rsync-ssh-keys
+	ssh $(call ssh-option,ansible,$(ANSIBLE_IP)) vagrant@$(ANSIBLE_IP) \
+		'cd ansible && make provision-development'
 
-provision:
-	vagrant ssh wafu_ansible -c 'cd ansible && make provision'
+################################################################################
+# Fuji
+################################################################################
+.PHONY: ssh-fuji-01
+ssh-fuji-01: chmod-vagrant-keys
+	$(call ssh,fuji-01,$(FUJI_01_IP))
+.PHONY: ssh-fuji-02
+ssh-fuji-02: chmod-vagrant-keys
+	$(call ssh,fuji-02,$(FUJI_02_IP))
+.PHONY: ssh-fuji-03
+ssh-fuji-03: chmod-vagrant-keys
+	$(call ssh,fuji-03,$(FUJI_03_IP))
+.PHONY: ssh-fuji-04
+ssh-fuji-04: chmod-vagrant-keys
+	$(call ssh,fuji-04,$(FUJI_04_IP))

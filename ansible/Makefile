@@ -1,16 +1,17 @@
-export ENVIRONMENT=vagrant
+ENVIRONMENT_DEVELOPMENT := vagrant-development
+ENVIRONMENT_STAGING:= vagrant-staging
 
-version:
-	ansible-playbook --version
+################################################################################
+# Ansible デバッグ用
+################################################################################
+.PHONY: provision-hello
+provision-hello:
+	~/.local/bin/ansible-playbook \
+		--inventory ./inventories/$(ENVIRONMENT_DEVELOPMENT)/hosts \
+		./hello.yml
 
-dry-provision:
-	ansible-playbook \
-		--inventory ./inventories/${ENVIRONMENT}/hosts \
-		--check \
-		./main.yml
-#		--ask-pass \
-
-provision:
-	ansible-playbook \
-		--inventory ./inventories/${ENVIRONMENT}/hosts \
+.PHONY: provision-development
+provision-development:
+	~/.local/bin/ansible-playbook \
+		--inventory ./inventories/$(ENVIRONMENT_DEVELOPMENT)/hosts \
 		./main.yml

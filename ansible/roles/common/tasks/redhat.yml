@@ -1,0 +1,37 @@
+---
+
+- name: EPEL(Extra Packages for Enterprise Linux)を有効化されているか確認(AmazonLinux2)
+  become: yes
+  shell: 'amazon-linux-extras list | grep epel'
+  register: epel_line
+  when:
+    - ansible_distribution == 'Amazon'
+    - ansible_service_mgr == 'systemd'
+  changed_when: false
+
+- name: EPELを有効化(AmazonLinux2)
+  become: yes
+  shell: 'amazon-linux-extras install -y epel'
+  when:
+    - epel_line.stdout is defined
+    - "'enable' not in epel_line.stdout"
+
+- name: EPELを入れる(AmazonLinux2以外)
+  become: yes
+  yum:
+    name: epel-release
+  when: not (ansible_distribution == 'Amazon' and ansible_service_mgr == 'systemd')
+
+- name: 開発でよく使うパッケージを入れる（Redhat）
+  become: yes
+  yum:
+    name: '{{ packages }}'
+    update_cache: yes
+    enablerepo: epel
+
+- name: 開発でよく使うパッケージを入れる（Redhatのみのpackage名）
+  become: yes
+  yum:
+    name: '{{ redhat_only_packages }}'
+    update_cache: yes
+    enablerepo: epel

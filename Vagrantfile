@@ -3,24 +3,17 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
-VAGRANT_BOX_DEBIAN  = './packer/builds/debian-10.3.virtualbox.box'
-VAGRANT_BOX_UBUNTU  = 'bento/ubuntu-18.04'
-VAGRANT_BOX_CENTOS  = 'bento/centos-8'
-VAGRANT_BOX_DEFAULT = VAGRANT_BOX_UBUNTU
+VAGRANT_BOX_UBUNTU_18    = 'bento/ubuntu-18.04'
+VAGRANT_BOX_CENTOS_7     = 'bento/centos-7'
+VAGRANT_BOX_AMAZONLINUX  = 'jonnangle/amazonlinux'
+VAGRANT_BOX_AMAZONLINUX2 = 'bento/amazonlinux-2'
+VAGRANT_BOX_DEFAULT = VAGRANT_BOX_UBUNTU_18
 
 vm_specs = [
-  { name: 'mutsuki',    ip: '192.168.33.11', cpus: 2, memory: 512*1, sync_dir: nil },
-  { name: 'kisaragi',   ip: '192.168.33.12', cpus: 1, memory: 512*1, sync_dir: nil },
-  { name: 'yayoi',      ip: '192.168.33.13', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'uduki',      ip: '192.168.33.14', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'satsuki',    ip: '192.168.33.15', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'minaduki',   ip: '192.168.33.16', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'humiduki',   ip: '192.168.33.17', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'haduki',     ip: '192.168.33.18', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'nagatuki',   ip: '192.168.33.19', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'kannnaduki', ip: '192.168.33.20', cpus: 1, memory: 512*1, sync_dir: nil },
-#  { name: 'shimoduki',  ip: '192.168.33.21', cpus: 1, memory: 512*1, sync_dir: nil },
-  { name: 'shiwasu',    ip: '192.168.33.22', cpus: 1, memory: 512*4, sync_dir: nil },
+  { vagrant_box: VAGRANT_BOX_UBUNTU_18,    name: 'fuji-01', ip: '192.168.33.11', cpus: 1, memory: 512*2, sync_dir: nil },
+  { vagrant_box: VAGRANT_BOX_CENTOS_7,     name: 'fuji-02', ip: '192.168.33.12', cpus: 1, memory: 512*2, sync_dir: nil },
+  { vagrant_box: VAGRANT_BOX_AMAZONLINUX,  name: 'fuji-03', ip: '192.168.33.13', cpus: 1, memory: 512*2, sync_dir: nil },
+  { vagrant_box: VAGRANT_BOX_AMAZONLINUX2, name: 'fuji-04', ip: '192.168.33.14', cpus: 1, memory: 512*2, sync_dir: nil },
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -38,7 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       machine.vm.hostname = spec[:name]
       machine.vm.network 'private_network', ip: spec[:ip]
       machine.vm.provider :virtualbox do |vb|
-        vb.name   = spec[:name]
+        vb.name   = "#{Pathname.pwd.basename}-#{spec[:name]}"
         vb.cpus   = spec[:cpus]
         vb.memory = spec[:memory]
       end
@@ -53,14 +46,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ##############################################################################
   # Ansibleをするためだけの初期化用VM
   ##############################################################################
-  config.vm.define :wafu_ansible do |machine|
-    machine.vm.box      = VAGRANT_BOX_DEBIAN
-    machine.vm.hostname = 'wafu-ansible'
-    machine.vm.network 'private_network', ip: '192.168.33.10'
+  config.vm.define :ansible do |machine|
+    machine.vm.box      = VAGRANT_BOX_UBUNTU_18
+    machine.vm.hostname = 'ansible'
+    machine.vm.network 'private_network', ip: '192.168.255.250'
     machine.vm.provider :virtualbox do |vb|
       vb.gui    = false
-      vb.name   = machine.vm.hostname
-      vb.memory = 1024 * 1
+      vb.name   = "#{Pathname.pwd.basename}-ansible"
+      vb.memory = 512 * 2
       vb.cpus   = 1
     end
     machine.vm.synced_folder './ansible', '/home/vagrant/ansible',

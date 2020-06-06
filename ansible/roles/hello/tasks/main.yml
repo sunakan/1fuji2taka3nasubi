@@ -1,0 +1,23 @@
+---
+
+- name: debug
+  debug:
+    msg: 'hello {{ ansible_distribution }} {{ ansible_service_mgr }} {{ ansible_os_family }}'
+
+- name: epel確認(skipされてもregisterで定義はされるので気を付ける)
+  shell: 'amazon-linux-extras list | grep epel'
+  register: epel_line
+  when:
+    - ansible_distribution == 'Amazon'
+    - ansible_service_mgr == 'systemd'
+
+- name: epel_lineの表示('enable'という文字列を含んでいなければ)
+  debug:
+    msg: '{{ epel_line.stdout }}'
+  when:
+    - epel_line.stdout is defined
+    - "'enable' not in epel_line.stdout"
+
+- name: 変数の利用(roles/TASK名/vars/main.ymlに記述)
+  debug:
+    msg: '{{ var_hello }}'

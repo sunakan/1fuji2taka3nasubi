@@ -1,0 +1,8 @@
+[fuji]
+fuji-01
+fuji-02
+fuji-03
+fuji-04
+
+[all:children]
+fuji

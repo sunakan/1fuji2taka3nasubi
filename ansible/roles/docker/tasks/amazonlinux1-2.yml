@@ -1,0 +1,15 @@
+---
+
+- name: Install docker
+  become: yes
+  yum:
+    name:
+      - docker
+    update_cache: yes
+
+- name: docker.serviceを起動
+  service:
+    name: docker
+    state: started
+    enabled: yes
+    use: auto

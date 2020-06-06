@@ -3,18 +3,13 @@
 - name: 開発でよく使うパッケージを入れる（Debian）
   become: yes
   apt:
-    name:
-      - tree
-      - git
-      - tig
-      - vim
-      - make
-      - tmux
-      - direnv
-      - bash-completion
-      - unzip
-      - jq
-      - wget
-      - curl
+    name: '{{ packages }}'
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: 開発でよく使うパッケージを入れる（Debianのみのpackage名）
+  become: yes
+  apt:
+    name: '{{ debian_only_packages }}'
     update_cache: yes
     cache_valid_time: 3600

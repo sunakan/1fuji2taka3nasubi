@@ -1,0 +1,23 @@
+---
+
+packages:
+  - tree
+  - git
+  - tig
+  - vim
+  - make
+  - tmux
+  - bash-completion
+  - unzip
+  - jq
+  - wget
+  - curl
+  - socat
+
+debian_only_packages:
+  - dnsutils
+
+redhat_only_packages:
+  - bind-utils
+
+direnv_version: v2.21.3
