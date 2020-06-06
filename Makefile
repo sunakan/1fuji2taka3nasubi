@@ -5,17 +5,28 @@ FUJI_03_IP := 192.168.33.13
 FUJI_04_IP := 192.168.33.14
 
 ################################################################################
-# Vagrantで建てたVM同士が名前解決できるようにするプラグイン
+# VagrantでたてたVM同士が名前解決できるようにするプラグイン
 ################################################################################
 .PHONY: install-plugin
 install-plugin:
 	vagrant plugin install vagrant-hosts
+################################################################################
+# Vagrant boxをpull
+################################################################################
+.PHONY: pull-boxes
+pull-boxes:
+	vagrant box add bento/ubuntu-18.04
+	vagrant box add bento/centos-7
+	vagrant box add jonnangle/amazonlinux
+	vagrant box add bento/amazonlinux-2
+
 .PHONY: up
 up: plugin
 	vagrant up
 
 ################################################################################
-# Windowsだとsshのprivate_keyの権限がWSLで600にできないので、/tmp/に持っていく
+# VagrantでたてたVMの秘密鍵をtmp/以下の適当なディレクトリに持っていく
+# Windowsだとsshの秘密鍵の権限がWSLで600にできないため
 # Macなら不要
 ################################################################################
 TMP_DIR_PREFIX := vagrant-ssh-keys
@@ -71,7 +82,7 @@ provision-development: chmod-vagrant-keys rsync-ssh-keys
 		'cd ansible && make provision-development'
 
 ################################################################################
-# Fuji
+# Fuji VM
 ################################################################################
 .PHONY: ssh-fuji-01
 ssh-fuji-01: chmod-vagrant-keys
