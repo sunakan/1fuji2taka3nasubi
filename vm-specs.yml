@@ -1,0 +1,31 @@
+---
+
+#! VagrantBoxの一覧
+#@ UBUNTU_18    = 'bento/ubuntu-18.04'
+#@ CENTOS_7     = 'bento/centos-7'
+#@ AMAZONLINUX  = 'jonnangle/amazonlinux'
+#@ AMAZONLINUX2 = 'bento/amazonlinux-2'
+
+#@ def spec(box_name, name, ip, cpus, memory, sync_dir=None):
+vagrant_box: #@ box_name
+name: #@ name
+ip: #@ ip
+cpus: #@ cpus
+memory: #@ memory
+sync_dir: #@ sync_dir
+#@ end
+
+#@ ansible = spec(box_name=UBUNTU_18,    name='ansible', ip='192.168.255.250', cpus=1, memory=1024, sync_dir='./ansible')
+#@ fuji_01 = spec(box_name=UBUNTU_18,    name='fuji-01', ip='192.168.33.11',   cpus=2, memory=3072, sync_dir='./works')
+#@ fuji_02 = spec(box_name=CENTOS_7,     name='fuji-02', ip='192.168.33.12',   cpus=1, memory=1024, sync_dir=None)
+#@ fuji_03 = spec(box_name=AMAZONLINUX,  name='fuji-03', ip='192.168.33.13',   cpus=1, memory=1024, sync_dir=None)
+#@ fuji_04 = spec(box_name=AMAZONLINUX2, name='fuji-04', ip='192.168.33.14',   cpus=1, memory=1024, sync_dir=None)
+
+ansible: #@ ansible
+vm_specs:
+  - #@ fuji_01
+  - #@ fuji_02
+  - #@ fuji_03
+  - #@ fuji_04
+
+...

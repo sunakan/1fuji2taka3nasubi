@@ -1,8 +1,35 @@
-ANSIBLE_IP := 192.168.255.250
-FUJI_01_IP := 192.168.33.11
-FUJI_02_IP := 192.168.33.12
-FUJI_03_IP := 192.168.33.13
-FUJI_04_IP := 192.168.33.14
+.PHONY: setup-ytt
+setup-ytt:
+	make --file ./Makefile.ytt setup-ytt
+################################################################################
+# 変数チェック(主にdebug用途)
+################################################################################
+define vm-specs-json
+	cat ./vm-specs.yml | ./ytt -f- --output json
+endef
+.PHONY: check
+check:
+	echo $(ANSIBLE_IP)
+	echo $(FUJI_01_IP)
+	$(call vm-specs-json) | jq --raw-output '.vm_specs[].vagrant_box' | xargs -I {vagrant-box} echo {vagrant-box}
+	echo $(SSH_COMMAND)
+
+ANSIBLE_HOST := ansible
+ANSIBLE_IP   := $(shell $(call vm-specs-json) | jq --raw-output '.ansible.ip')
+FUJI_01_HOST := fuji-01
+FUJI_02_HOST := fuji-02
+FUJI_03_HOST := fuji-03
+FUJI_04_HOST := fuji-04
+FUJI_01_IP   := $(shell $(call vm-specs-json) | jq --raw-output '.vm_specs[] | select(.name == "$(FUJI_01_HOST)") | .ip')
+FUJI_02_IP   := $(shell $(call vm-specs-json) | jq --raw-output '.vm_specs[] | select(.name == "$(FUJI_02_HOST)") | .ip')
+FUJI_03_IP   := $(shell $(call vm-specs-json) | jq --raw-output '.vm_specs[] | select(.name == "$(FUJI_03_HOST)") | .ip')
+FUJI_04_IP   := $(shell $(call vm-specs-json) | jq --raw-output '.vm_specs[] | select(.name == "$(FUJI_04_HOST)") | .ip')
+
+################################################################################
+# sshコマンドを変数として扱う
+# sshのラッパーがあれば、それを優先して使いたい
+################################################################################
+SSH_COMMAND := $(shell (command -v kyrat) || (command -v sshrc) || (command -v ssh))
 
 ################################################################################
 # VagrantでたてたVM同士が名前解決できるようにするプラグイン
@@ -15,10 +42,9 @@ install-plugin:
 ################################################################################
 .PHONY: pull-boxes
 pull-boxes:
-	vagrant box add bento/ubuntu-18.04
-	vagrant box add bento/centos-7
-	vagrant box add jonnangle/amazonlinux
-	vagrant box add bento/amazonlinux-2
+	$(call vm-specs-json) \
+	| jq --raw-output '.vm_specs[].vagrant_box' \
+	| xargs -I {vagrant-box} vagrant box add {vagrant-box}
 
 .PHONY: up
 up: plugin
@@ -27,7 +53,7 @@ up: plugin
 ################################################################################
 # VagrantでたてたVMの秘密鍵をtmp/以下の適当なディレクトリに持っていく
 # Windowsだとsshの秘密鍵の権限がWSLで600にできないため
-# Macなら不要
+# Macなら不要だけど、依存しているので動かす
 ################################################################################
 TMP_DIR_PREFIX := vagrant-ssh-keys
 .PHONY: clean-vagrant-keys
@@ -35,8 +61,8 @@ clean-vagrant-keys:
 	rm -rf /tmp/$(TMP_DIR_PREFIX)*
 .PHONY: vagrant-keys
 vagrant-keys: clean-vagrant-keys
-	$(eval TMP_DIR := $(shell mktemp --directory -t $(TMP_DIR_PREFIX)-XXXXX))
-	ls .vagrant/machines/*/virtualbox/private_key | xargs -I {key} cp --parents {key} $(TMP_DIR)/
+	$(eval TMP_DIR := $(shell mktemp -d -t $(TMP_DIR_PREFIX)-XXXXX))
+	ls .vagrant/machines/*/virtualbox/private_key | xargs -I {key} rsync --relative {key} $(TMP_DIR)/
 .PHONY: chmod-vagrant-keys
 chmod-vagrant-keys: vagrant-keys
 	chmod 600 $(TMP_DIR)/.vagrant/machines/*/virtualbox/private_key
@@ -57,9 +83,7 @@ endef
 # $(1)：VMマシン名(VirtualBox側の名前)
 # $(2)：VM側のIP(VirtualBox側の名前)
 define ssh
-	( kyrat $(call ssh-option,$(1)) vagrant@$(2) ) \
-		|| ( sshrc $(call ssh-option,$(1)) vagrant@$(2) ) \
-		|| ssh $(call ssh-option,$(1)) vagrant@$(2)
+	$(SSH_COMMAND) $(call ssh-option,$(1)) vagrant@$(2)
 endef
 
 ################################################################################

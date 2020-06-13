@@ -5,6 +5,7 @@ image:./diagram.png[]
 == VagrantBoxを追加し、VMをたちあげて、プロビジョニングするまで
 
 ----
+$ make setup-ytt
 $ make pull-boxes
 $ make init-plugin
 $ make up
