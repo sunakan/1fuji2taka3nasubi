@@ -12,6 +12,12 @@ $ make up
 $ make provision-provision
 ----
 
+==== Ansibleのプロパティやregisterなどの挙動をチェックするトライ&エラー用のMake
+
+----
+$ make provision-hello
+----
+
 == たてたVMにsshして、Dockerのバージョン確認するまで
 
 ----
