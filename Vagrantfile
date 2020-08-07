@@ -3,6 +3,7 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
+VAGRANT_BOX_UBUNTU_20    = 'bento/ubuntu-20.04'
 VAGRANT_BOX_UBUNTU_18    = 'bento/ubuntu-18.04'
 VAGRANT_BOX_CENTOS_7     = 'bento/centos-7'
 VAGRANT_BOX_AMAZONLINUX  = 'jonnangle/amazonlinux'
@@ -10,10 +11,10 @@ VAGRANT_BOX_AMAZONLINUX2 = 'bento/amazonlinux-2'
 VAGRANT_BOX_DEFAULT = VAGRANT_BOX_UBUNTU_18
 
 vm_specs = [
-  { vagrant_box: VAGRANT_BOX_UBUNTU_18,    name: 'fuji-01', ip: '192.168.33.11', cpus: 2, memory: 512*6, sync_dir: './works' },
-  { vagrant_box: VAGRANT_BOX_CENTOS_7,     name: 'fuji-02', ip: '192.168.33.12', cpus: 1, memory: 512*2, sync_dir: nil },
-  { vagrant_box: VAGRANT_BOX_AMAZONLINUX,  name: 'fuji-03', ip: '192.168.33.13', cpus: 1, memory: 512*2, sync_dir: nil },
-  { vagrant_box: VAGRANT_BOX_AMAZONLINUX2, name: 'fuji-04', ip: '192.168.33.14', cpus: 1, memory: 512*2, sync_dir: nil },
+  { vagrant_box: VAGRANT_BOX_UBUNTU_20,    name: 'fuji-01', ip: '192.168.33.11', cpus: 2, memory: 512*6, sync_dir: './works' },
+#  { vagrant_box: VAGRANT_BOX_CENTOS_7,     name: 'fuji-02', ip: '192.168.33.12', cpus: 1, memory: 512*2, sync_dir: nil },
+#  { vagrant_box: VAGRANT_BOX_AMAZONLINUX,  name: 'fuji-03', ip: '192.168.33.13', cpus: 1, memory: 512*2, sync_dir: nil },
+#  { vagrant_box: VAGRANT_BOX_AMAZONLINUX2, name: 'fuji-04', ip: '192.168.33.14', cpus: 1, memory: 512*2, sync_dir: nil },
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -47,7 +48,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Ansibleをするためだけの初期化用VM
   ##############################################################################
   config.vm.define :ansible do |machine|
-    machine.vm.box      = VAGRANT_BOX_UBUNTU_18
+    machine.vm.box      = VAGRANT_BOX_UBUNTU_20
     machine.vm.hostname = 'ansible'
     machine.vm.network 'private_network', ip: '192.168.255.250'
     machine.vm.provider :virtualbox do |vb|
