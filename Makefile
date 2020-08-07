@@ -52,7 +52,7 @@ up: plugin
 
 ################################################################################
 # VagrantでたてたVMの秘密鍵をtmp/以下の適当なディレクトリに持っていく
-# Windowsだとsshの秘密鍵の権限がWSLで600にできないため
+# Windowsだとsshの秘密鍵の権限がWSLで400にできないため
 # Macなら不要だけど、依存しているので動かす
 ################################################################################
 TMP_DIR_PREFIX := vagrant-ssh-keys
@@ -65,7 +65,7 @@ vagrant-keys: clean-vagrant-keys
 	ls .vagrant/machines/*/virtualbox/private_key | xargs -I {key} rsync --relative {key} $(TMP_DIR)/
 .PHONY: chmod-vagrant-keys
 chmod-vagrant-keys: vagrant-keys
-	chmod 600 $(TMP_DIR)/.vagrant/machines/*/virtualbox/private_key
+	chmod 400 $(TMP_DIR)/.vagrant/machines/*/virtualbox/private_key
 
 ################################################################################
 # SSHのオプションとSSH先
@@ -110,13 +110,13 @@ provision-development: chmod-vagrant-keys rsync-ssh-keys
 ################################################################################
 .PHONY: ssh-fuji-01
 ssh-fuji-01: chmod-vagrant-keys
-	$(call ssh,fuji-01,$(FUJI_01_IP))
+	$(call ssh,$(FUJI_01_HOST),$(FUJI_01_IP))
 .PHONY: ssh-fuji-02
 ssh-fuji-02: chmod-vagrant-keys
-	$(call ssh,fuji-02,$(FUJI_02_IP))
+	$(call ssh,$(FUJI_02_HOST),$(FUJI_02_IP))
 .PHONY: ssh-fuji-03
 ssh-fuji-03: chmod-vagrant-keys
-	$(call ssh,fuji-03,$(FUJI_03_IP))
+	$(call ssh,$(FUJI_03_HOST),$(FUJI_03_IP))
 .PHONY: ssh-fuji-04
 ssh-fuji-04: chmod-vagrant-keys
-	$(call ssh,fuji-04,$(FUJI_04_IP))
+	$(call ssh,$(FUJI_04_HOST),$(FUJI_04_IP))
