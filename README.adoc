@@ -7,21 +7,21 @@ image:./docs/diagram.png[]
 ----
 $ make setup-ytt
 $ make pull-boxes
-$ make init-plugin
-$ make up
-$ make provision-provision
+$ make install-plugin
+$ vagrant up
+$ make provision-development
 ----
 
 ==== Ansibleのプロパティやregisterなどの挙動をチェックするトライ&エラー用のMake
 
 ----
-$ make provision-hello
+$ make provision-debug
 ----
 
 == たてたVMにsshして、Dockerのバージョン確認するまで
 
 ----
-$ make ssh-fuji-01
+$ make ssh VM_KEY=fuji-01
 (VM内で)
 $ docker --version
 ----
