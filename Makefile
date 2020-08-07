@@ -25,11 +25,11 @@ endef
 # タスク
 ################################################################################
 .PHONY: install-plugin
-install-plugin: # VagrantでたてたVM同士が名前解決できるようにするプラグイン
+install-plugin: ## VagrantでたてたVM同士が名前解決するプラグインを入れる
 	vagrant plugin install vagrant-hosts
 
 .PHONY: pull-boxes
-pull-boxes: # vagrant box add 色々
+pull-boxes: ## vagrant box add 色々
 	vagrant box add bento/ubuntu-20.04
 	vagrant box add bento/ubuntu-18.04
 	vagrant box add bento/centos-7
@@ -39,7 +39,7 @@ pull-boxes: # vagrant box add 色々
 # Windowsだとsshの秘密鍵の権限がWSLで400にできないため
 # Macなら不要だけど、依存しているので動かす
 .PHONY: setup-vagrant-keys
-setup-vagrant-keys: # VMの秘密鍵をtmp/以下に持っていき、400にする
+setup-vagrant-keys: ## VMの秘密鍵をtmp/以下に持っていき、400にする
 	rm -rf /tmp/$(TMP_DIR_PREFIX)*
 	$(eval TMP_DIR := $(shell mktemp -d -t $(TMP_DIR_PREFIX)-XXXXX))
 	mkdir -p $(TMP_DIR)
@@ -57,7 +57,7 @@ rsync-vm-ssh-keys-to-ansible-vm: setup-vagrant-keys
 		$(TMP_DIR)/ vagrant@$(ANSIBLE_IP):/tmp/private-ssh-keys/
 
 .PHONY: ssh-ansible
-ssh-ansible: setup-vagrant-keys # ansible用のvmにssh(デバッグ用)
+ssh-ansible: setup-vagrant-keys ## ansible用のvmにssh(デバッグ用)
 	$(SSH_COMMAND) $(call ssh-option,$(TMP_DIR),ansible) vagrant@$(ANSIBLE_IP)
 
 .PHONY: provision-debug
@@ -70,5 +70,5 @@ provision-development: setup-vagrant-keys
 
 
 .PHONY: ssh
-ssh: setup-vagrant-keys # VM_KEYに対応したvmへssh($ make ssh VM_KEY=fuji-01)
+ssh: setup-vagrant-keys ## VM_KEYに対応したvmへssh($ make ssh VM_KEY=fuji-01)
 	$(SSH_COMMAND) $(call ssh-option,$(TMP_DIR),$(VM_KEY)) vagrant@$(VM_IP)
