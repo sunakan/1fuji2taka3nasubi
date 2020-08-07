@@ -1,6 +1,6 @@
 = 1富士2鷹3茄子
 
-image:./diagram.png[]
+image:./docs/diagram.png[]
 
 == VagrantBoxを追加し、VMをたちあげて、プロビジョニングするまで
 
