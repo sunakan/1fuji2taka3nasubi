@@ -54,8 +54,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     machine.vm.provider :virtualbox do |vb|
       vb.gui    = false
       vb.name   = "#{Pathname.pwd.basename}-ansible"
-      vb.memory = 512 * 2
-      vb.cpus   = 1
+      vb.memory = 512 * 10
+      vb.cpus   = 2
     end
     machine.vm.synced_folder './ansible', '/home/vagrant/ansible',
       create: true, type: :rsync, owner: :vagrant, group: :vagrant,
@@ -65,6 +65,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       sudo apt update
       sudo apt install --assume-yes python3-pip make sshpass
       pip3 install --user ansible
+
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      sudo apt-key fingerprint 0EBFCD88
+      sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      sudo apt-get update
+      sudo apt-get install --assume-yes docker-ce
     SHELL
   end
 
